@@ -1,0 +1,72 @@
+- job:
+    name: nebulous-optimiser-utility-evaluator-build-container-images
+    parent: nebulous-build-container-images
+    dependencies:
+      - name: opendev-buildset-registry
+        soft: false
+    provides:
+      - nebulous-optimiser-utility-evaluator-container-images
+    description: Build the container images.
+    files: &image_files
+      - ^java-spring-boot-demo/
+    vars: &image_vars
+      promote_container_image_job: nebulous-optimiser-utility-evaluator-upload-container-images
+      container_images:
+        - context: java-spring-boot-demo
+          registry: quay.io
+          repository: quay.io/nebulous/optimiser-utility-evaluator-java-spring-boot-demo
+          namespace: nebulous
+          repo_shortname: optimiser-utility-evaluator-java-spring-boot-demo
+          repo_description: ""
+
+- job:
+    name: nebulous-optimiser-utility-evaluator-upload-container-images
+    parent: nebulous-upload-container-images
+    dependencies:
+      - name: opendev-buildset-registry
+        soft: false
+    provides:
+      - nebulous-optimiser-utility-evaluator-container-images
+    description: Build and upload the container images.
+    files: *image_files
+    vars: *image_vars
+
+- job:
+    name: nebulous-optimiser-utility-evaluator-promote-container-images
+    parent: nebulous-promote-container-images
+    description: Promote previously uploaded container images.
+    files: *image_files
+    vars: *image_vars
+
+- job:
+    name: nebulous-optimiser-utility-evaluator-hadolint
+    parent: nebulous-hadolint
+    description: Run Hadolint on Dockerfile(s).
+    vars:
+      dockerfiles:
+        - java-spring-boot-demo/Dockerfile
+
+- job:
+    name: nebulous-optimiser-utility-evaluator-helm-lint
+    parent: nebulous-helm-lint
+    description: Run helm lint on Helm charts.
+    vars:
+      helm_charts:
+        - ./charts/nebulous-optimiser-utility-evaluator
+
+- job:
+    name: nebulous-optimiser-utility-evaluator-apply-helm-charts
+    parent: nebulous-apply-helm-charts
+    dependencies:
+      - name: opendev-buildset-registry
+        soft: false
+      - name: nebulous-optimiser-utility-evaluator-build-container-images
+        soft: true
+      - name: nebulous-optimiser-utility-evaluator-upload-container-images
+        soft: true
+    requires:
+      - nebulous-optimiser-utility-evaluator-container-images
+    description: Deploy a Kubernetes cluster and apply charts.
+    vars:
+      helm_charts:
+        nebulous-optimiser-utility-evaluator: ./charts/nebulous-optimiser-utility-evaluator
