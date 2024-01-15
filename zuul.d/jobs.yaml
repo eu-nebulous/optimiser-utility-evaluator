@@ -8,15 +8,15 @@
       - nebulous-optimiser-utility-evaluator-container-images
     description: Build the container images.
     files: &image_files
-      - ^java-spring-boot-demo/
+      - ^utility-evaluator/
     vars: &image_vars
       promote_container_image_job: nebulous-optimiser-utility-evaluator-upload-container-images
       container_images:
-        - context: java-spring-boot-demo
+        - context: utility-evaluator
           registry: quay.io
-          repository: quay.io/nebulous/optimiser-utility-evaluator-java-spring-boot-demo
+          repository: quay.io/nebulous/optimiser-utility-evaluator
           namespace: nebulous
-          repo_shortname: optimiser-utility-evaluator-java-spring-boot-demo
+          repo_shortname: optimiser-utility-evaluator
           repo_description: ""
 
 - job:
@@ -44,7 +44,7 @@
     description: Run Hadolint on Dockerfile(s).
     vars:
       dockerfiles:
-        - java-spring-boot-demo/Dockerfile
+        - utility-evaluator/Dockerfile
 
 - job:
     name: nebulous-optimiser-utility-evaluator-helm-lint

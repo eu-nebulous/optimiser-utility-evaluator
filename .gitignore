@@ -1,2 +1,12 @@
 __pycache__/
 .nox/
+utility-evaluator/src/test/.DS_Store
+utility-evaluator/src/test/java/.DS_Store
+utility-evaluator/src/main/java/eu/nebulous/.DS_Store
+utility-evaluator/src/.DS_Store
+utility-evaluator/src/main/.DS_Store
+utility-evaluator/src/main/java/.DS_Store
+utility-evaluator/src/main/java/eu/.DS_Store
+utility-evaluator/.DS_Store
+.vscode/settings.json
+.DS_Store
