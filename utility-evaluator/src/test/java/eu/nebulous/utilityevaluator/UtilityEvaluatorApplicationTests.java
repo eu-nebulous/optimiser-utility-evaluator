@@ -1,5 +1,6 @@
 package eu.nebulous.utilityevaluator;
 
+import org.json.simple.parser.JSONParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.ow2.proactive.sal.model.Cloud;
@@ -12,15 +13,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jms.core.JmsTemplate;
 
-import eu.nebulous.utilityevaluator.communication.activemq.message.FetchNodeCandidatesMessage;
-import eu.nebulous.utilityevaluator.nodecandidates.NodeCandidateConverter;
-import eu.nebulous.utilityevaluator.nodecandidates.NodeCandidateDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
+import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
+import eu.nebulous.utilityevaluator.model.message.FetchNodeCandidatesMessage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +37,18 @@ class UtilityEvaluatorApplicationTests {
     @MockBean
     private JmsTemplate jmsTemplate;
 
+    //@Test
+    void testConvertingNodeCandidates(){
+        String filename = "/Users/martarozanska/nebulous/git/optimiser-utility-evaluator/utility-evaluator/src/test/java/resources/response-all-clouds.json";
+
+        File fileNC = new File(filename);
+        ObjectMapper mapper = new ObjectMapper();
+        //List<NodeCandidate> nodeCandidates = mapper.readValue(fileNC, );
+
+
+        
+    }
+    
     //@Test
     void testNodeCandidatesConverter() {
         // Arrange

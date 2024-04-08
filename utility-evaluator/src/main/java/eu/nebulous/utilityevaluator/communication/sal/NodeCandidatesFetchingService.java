@@ -1,5 +1,7 @@
 package eu.nebulous.utilityevaluator.communication.sal;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -8,38 +10,95 @@ import org.ow2.proactive.sal.model.NodeCandidate;
 import org.ow2.proactive.sal.model.Requirement;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.communication.sal.error.ProactiveClientException;
+import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
+import eu.nebulous.utilityevaluator.model.Application;
+import eu.nebulouscloud.exn.core.SyncedPublisher;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; 
 
+
 @Slf4j
 @RequiredArgsConstructor
-@Component
+//@Component
 public class NodeCandidatesFetchingService {
 
     private static final int NUMBER_OF_REPEATS_FOR_NODE_CANDIDATES = 120;
     private static final int DELAY_BETWEEN_REQUESTS = 5000;
 
-    private final ProactiveConnector proactiveClientConnectorService;
+    @NonNull
+    private SyncedPublisher nodeCandidatesConnector;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    
+    //private final ProactiveConnector proactiveClientConnectorService;
     /*public NodeCandidatesFetchingService(ProactiveClientProperties properties){
         ProactiveConnector connector = new ProactiveConnector(properties);
         this.proactiveClientConnectorService = connector;
     }*/
-
-        //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl 
+ //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl 
     
-    public List<NodeCandidate> getNodeCandidates(Map<String,String> cloudProviders){
+    public List<NodeCandidate> getNodeCandidatesViaMiddleware(Application app, String componentId){
+        /*generate requirements (based on kubevela), and providers,
+         *  call SAL via EXN Middleware
+         *  get node candidates
+         * */
+        Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
+        Map<String, Object> message = new HashMap();
+        try {
+            message = Map.of("metaData", Map.of("user", "admin"), "body", mapper.writeValueAsString(requirements));
+            log.info("Sending message to SAL: {}", message);
+        } catch (JsonProcessingException e) {
+            log.error("There was an error during converting message {}", e);
+            e.printStackTrace();
+        }
+
+        //Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
+        Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
+        log.info("Received a response");
+        JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
+        log.info("Correctly return SAL response for component {}", componentId);
+        return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
+    }
+
+    //copied from Optimizer Controller: https://opendev.org/nebulous/optimiser-controller/src/branch/master/optimiser-controller/src/main/java/eu/nebulouscloud/optimiser/controller/NebulousApp.java
+    private static JsonNode extractPayloadFromExnResponse(Map<String, Object> responseMessage, String appID, String caller) {
+        JsonNode response = mapper.valueToTree(responseMessage);
+        String salRawResponse = response.at("/body").asText(); // it's already a string, asText() is for the type system
+        JsonNode metadata = response.at("/metaData");
+        JsonNode salResponse = mapper.missingNode(); // the data coming from SAL
+	    try {
+	        salResponse = mapper.readTree(salRawResponse);
+	    } 
+        catch (JsonProcessingException e) {
+            log.error("Could not read message body as JSON: body = '{}', for app: {}", salRawResponse, appID, e);
+            return mapper.missingNode();
+	    }
+        if (!metadata.at("/status").asText().startsWith("2")) {
+            // we only accept 200, 202, numbers of that nature
+            log.error("exn-middleware-sal request failed with error code '{}' and message '{}'", metadata.at("/status"), salResponse.at("/message").asText());
+            return mapper.missingNode();
+        }
+        return salResponse;
+    }
+    //old method used for SAL
+    private List<NodeCandidate> getNodeCandidates(Map<String,String> cloudProviders){
         List<Requirement> providerRequirements = convertProviderRequirements(cloudProviders);
         return findNodeCandidates(providerRequirements);
     }
-    
+
+    //to be deleted
     private List<Requirement> convertProviderRequirements(Map<String,String> cloudProviders){
         //todo: filter based on the chosen cloud providers 
         return List.of();
     }
 
+    //old method used to connect to SAL directly
     private List<NodeCandidate> findNodeCandidates(List<Requirement> requirements) {
         List<NodeCandidate> nodeCandidates = new LinkedList<>();
         boolean isAnyAsyncNodeCandidatesProcessesInProgress = true;
@@ -47,14 +106,14 @@ public class NodeCandidatesFetchingService {
         try {
             while (isAnyAsyncNodeCandidatesProcessesInProgress && (requestNo < NUMBER_OF_REPEATS_FOR_NODE_CANDIDATES)) {
                 log.info("Checking if nodeCandidates downlaod process is finished. Trye: {}", requestNo);
-                isAnyAsyncNodeCandidatesProcessesInProgress = proactiveClientConnectorService.isAnyAsyncNodeCandidatesProcessesInProgress();
+                //isAnyAsyncNodeCandidatesProcessesInProgress = proactiveClientConnectorService.isAnyAsyncNodeCandidatesProcessesInProgress();
                 Thread.sleep(DELAY_BETWEEN_REQUESTS);
                 requestNo++;
             }
             if (isAnyAsyncNodeCandidatesProcessesInProgress) {
                 throw new RuntimeException("NodeCandidates are not yet present inside proactive scheduler");
             }
-            nodeCandidates = proactiveClientConnectorService.fetchNodeCandidates(requirements);
+            //nodeCandidates = proactiveClientConnectorService.fetchNodeCandidates(requirements);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         } catch (ProactiveClientException e2) {

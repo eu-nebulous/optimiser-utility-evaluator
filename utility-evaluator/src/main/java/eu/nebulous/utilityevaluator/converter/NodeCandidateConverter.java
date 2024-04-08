@@ -1,11 +1,15 @@
-package eu.nebulous.utilityevaluator.nodecandidates;
+package eu.nebulous.utilityevaluator.converter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.ow2.proactive.sal.model.NodeCandidate;
-
+import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
+import eu.nebulous.utilityevaluator.model.VariableDTO;
+import lombok.extern.slf4j.Slf4j;
 
 //static class that converts Node Candidates from SAL to NodeCandidatesDTO, which are then directly saved in node Candidates tensor
+@Slf4j
 public class NodeCandidateConverter {
 
     public static final String CSV_HEADER = "id;gpu;cpu;ram;location;latitude;longitude;provider;type;price\n";
@@ -59,6 +63,46 @@ public class NodeCandidateConverter {
                 nodeCandidate.getProvider(),
                 nodeCandidate.getType(),
                 nodeCandidate.getPrice());
+    }
+
+    //TODO: this method should also encode other fields of NodeCandidates: GPU, providertype, location but we need to have them as variables.
+    //only for variables that are used
+    public static double[][] convertListToDoubleArray(List<NodeCandidateDTO> nodeList, List<VariableDTO> variables) {
+        int size = nodeList.size();
+        double[][] dataArray = new double[size][];
+        
+        for (int i = 0; i < size; i++) {
+            NodeCandidateDTO node = nodeList.get(i);
+            List<Integer> usedNodeParameters = new ArrayList<>();
+            for (VariableDTO variable : variables){
+                switch (variable.getType()){
+                    case CPU:
+                        usedNodeParameters.add(node.getCpu());
+                        break;
+                    case RAM:
+                    usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
+                        break;
+                    default:
+                        log.info("Variable type {} is not usable in cost performance indicators", variable.getType());
+                        break;
+
+                    
+                }
+            }
+            double[] data = new double[usedNodeParameters.size()];
+            for (int j = 0; j < usedNodeParameters.size(); j++){
+                data[j]=usedNodeParameters.get(j);
+            }
+            /*{
+                node.getCpu(),
+                node.getGpu(),
+                node.getRam(),
+                node.getLatitude(),
+                node.getLongitude()
+            };*/
+            dataArray[i] = data;
+        }
+        return dataArray;
     }
 
 }

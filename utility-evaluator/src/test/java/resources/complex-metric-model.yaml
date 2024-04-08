@@ -1,0 +1,67 @@
+apiVersion: nebulous/v1
+kind: MetricModel
+metadata:
+  name: 125bff35-7012-4bf2-bf09-cefca295bf73
+  labels:
+    app: App-test
+templates:
+  - id: temp
+    type: int
+    range:
+      - 10
+      - 10000
+    unit: ms
+spec:
+  components:
+    - name: spec-comp
+      metrics: []
+  scopes:
+    - name: app-wide-scope
+      components: []
+      metrics:
+        - name: comp_c
+          type: composite
+          template: temp
+          formula: mean(raw_A)
+          window:
+            type: sliding
+            size: 30 sec
+          output: first 30 sec
+        - name: pi_D
+          type: composite
+          template: temp
+          formula: spec_components_1_properties_memory + comp_C + raw_B
+          window:
+            type: sliding
+            size: 20 sec
+          output: first 20 sec
+        - name: comp_E
+          type: composite
+          template: temp
+          formula: count(raw_A)+comp_C
+          window:
+            type: sliding
+            size: 30 ms
+          output: all 30 ms
+        - name: pi_F
+          type: composite
+          template: temp
+          formula: pi_D+comp_C
+          window:
+            type: sliding
+            size: 100 sec
+          output: last 100 sec
+        - name: raw_A
+          type: raw
+          sensor:
+            type: raw-a-sensor
+            config: {}
+        - name: raw_B
+          type: raw
+          sensor:
+            type: raw-b-sensor
+            config: {}
+      requirements:
+        - name: Combined SLO
+          type: slo
+          constraint: "(comp_E < 10)"

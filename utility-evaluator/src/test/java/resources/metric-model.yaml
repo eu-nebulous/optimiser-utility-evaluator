@@ -1,0 +1,43 @@
+apiVersion: nebulous/v1
+kind: MetricModel
+# Optional. Currently, only 'metadata.name' is used (if present)
+metadata:
+  name: dummy-app-deploy
+  labels:
+    app: nebulous-dummy-app
+common:
+  time_template: &time_template
+    id: 'time'
+    type: double
+    range: [0, 300]
+    unit: 'seconds'
+  latency_template: &latency_template
+    id: 'time'
+    type: double
+    range: [0, 300]
+    unit: 'seconds'
+spec:
+  scopes:
+    - name: dummy
+  components:
+    - name: dummy-app-worker
+      metrics:
+        - name: MeanJobProcessingLatency
+          type: composite
+          template: *latency_template
+          formula: 'mean(RawProcessingLatency)'
+          level: per_instance
+          window:
+            type: sliding
+            size: '1 min'
+          output:
+            type: all
+            schedule: '30 sec'
+        - name: RawProcessingLatency
+          template: *latency_template
+          sensor:
+            type: 'job_process_time_instance' #This is a sensor provided by the IoT pub-sub mechanism of the NebulOuS IoT data management
+      requirements:
+        - name: MeanJobProcessingLatencySLO
+          type: slo
+          constraint: 'MeanJobProcessingLatency >= 50'

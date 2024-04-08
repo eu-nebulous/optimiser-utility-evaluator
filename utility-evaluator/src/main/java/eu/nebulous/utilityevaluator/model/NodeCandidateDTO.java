@@ -1,4 +1,4 @@
-package eu.nebulous.utilityevaluator.nodecandidates;
+package eu.nebulous.utilityevaluator.model;
 
 import org.ow2.proactive.sal.model.NodeCandidate;
 

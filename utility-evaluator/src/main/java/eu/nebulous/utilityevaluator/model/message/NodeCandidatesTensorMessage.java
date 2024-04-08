@@ -1,4 +1,4 @@
-package eu.nebulous.utilityevaluator.communication.activemq.message;
+package eu.nebulous.utilityevaluator.model.message;
 
 import java.io.Serializable;
 
