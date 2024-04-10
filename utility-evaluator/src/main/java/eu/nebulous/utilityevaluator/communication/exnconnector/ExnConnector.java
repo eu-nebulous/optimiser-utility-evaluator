@@ -9,8 +9,11 @@ import eu.nebulouscloud.exn.Connector;
 import eu.nebulouscloud.exn.core.Consumer;
 import eu.nebulouscloud.exn.handlers.ConnectorHandler;
 import eu.nebulouscloud.exn.settings.StaticExnConfig;
-
+import lombok.Getter;
 import eu.nebulouscloud.exn.core.Context;
+import eu.nebulouscloud.exn.core.Publisher;
+import eu.nebulouscloud.exn.core.SyncedPublisher;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +31,22 @@ public class ExnConnector {
     String BROKER_PASSWORD;
  
 
-    public static final String GENERAL_APP_CREATION_MESSAGE_TOPIC = "eu.nebulouscloud.ui.dsl.generic.>";
-    public final GeneralMessageHandler generalHandler;
+    private static final String GENERAL_APP_CREATION_MESSAGE_TOPIC = "eu.nebulouscloud.ui.dsl.generic.>";
+    private final DslGenericMessageHandler genericDSLHandler;
+    private static final String PERFOMANCE_INDICATORS_TOPIC = "eu.nebulouscloud.optimiser.controller.ampl.performanceindicators";
+    @Getter
+    private final Publisher performanceIndicatorPublisher;
+    private static final String GET_NODE_CANDIDATES_TOPIC= "eu.nebulouscloud.exn.sal.nodecandidate.get";
+    @Getter
+    private final SyncedPublisher nodeCandidatesGetter;
+    
+    
 
-    public ExnConnector(GeneralMessageHandler handler) {
+    public ExnConnector() {
         super();
-        this.generalHandler = handler;
+        this.performanceIndicatorPublisher = new Publisher("costPerformanceIndicators", PERFOMANCE_INDICATORS_TOPIC, true, true);
+        this.nodeCandidatesGetter = new SyncedPublisher("getNodeCandidates",  GET_NODE_CANDIDATES_TOPIC, true, true);
+        this.genericDSLHandler = new DslGenericMessageHandler(nodeCandidatesGetter, performanceIndicatorPublisher);
         init();
         
 
@@ -43,8 +56,8 @@ public class ExnConnector {
             Connector c = new Connector(
                     "utilityevaluator",
                     new MyConnectorHandler(),
-                    List.of(),
-                    List.of(new Consumer("ui_all", GENERAL_APP_CREATION_MESSAGE_TOPIC, generalHandler ,true,true)),
+                    List.of(performanceIndicatorPublisher, nodeCandidatesGetter),
+                    List.of(new Consumer("ui_generic_message", GENERAL_APP_CREATION_MESSAGE_TOPIC, genericDSLHandler ,true,true)),
                     false,
                     false,
                     new StaticExnConfig(

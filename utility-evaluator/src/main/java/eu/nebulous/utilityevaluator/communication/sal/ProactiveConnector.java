@@ -30,7 +30,7 @@ import java.util.*;
 
 
 @Slf4j
-@Service
+//@Service
 public class ProactiveConnector {
 
     private static final String SESSION_HEADER = "sessionid";

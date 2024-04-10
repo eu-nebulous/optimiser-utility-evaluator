@@ -1,0 +1,151 @@
+{title=Mercabana Intralogistics, uuid=419c5ac2-e8cb-4115-8aa1-27d41ba0a08e, content=apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: tta-models-v2
+  namespace: tta-models
+spec:
+  components:
+
+    - name: minio-pvc
+      type: k8s-objects
+      properties:
+        objects:
+          - apiVersion: v1
+            kind: PersistentVolumeClaim
+            metadata:
+              name: minio-pvc
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 8Gi
+                  cpu: 2
+
+    - name: minio
+      type: webservice
+      properties:
+        image: minio/minio
+        args:
+          - server
+          - /data
+          - --console-address
+          - ":9090"
+        exposeType: NodePort
+        ports:
+          - name: minio-ui
+            expose: true
+            port: 9090
+            nodePort: 30002
+            protocol: TCP
+          - name: minio-api
+            expose: true
+            port: 9000
+            nodePort: 30001
+            protocol: TCP
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ACCESS_KEY
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_SECRET_KEY
+        volumeMounts:
+          pvc:
+            - name: minio-storage
+              mountPath: /data
+              claimName: minio-pvc
+
+    - name: object-detection
+      type: webservice
+      properties:
+        exposeType: NodePort
+        image: registry.gitlab.com/tta-nebulous/tta-modules/object_detection:minio
+        imagePullSecrets:
+        - gitlab-secret
+        ports:
+          - name: obj-pred
+            expose: true
+            port: 9000
+            nodePort: 30010
+            protocol: TCP
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ACCESS_KEY
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_SECRET_KEY
+        volumeMounts:
+          pvc:
+            - name: minio-storage
+              mountPath: /minio_data
+              claimName: minio-pvc
+
+    - name: damage-classification
+      type: webservice
+      properties:
+        exposeType: NodePort
+        image: registry.gitlab.com/tta-nebulous/tta-modules/damage_classification
+        imagePullSecrets:
+        - gitlab-secret
+        ports:
+        - name: class-pred
+          expose: true
+          port: 9001
+          nodePort: 30011
+          protocol: TCP
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ACCESS_KEY
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_SECRET_KEY
+        volumeMounts:
+          pvc:
+            - name: minio-storage
+              mountPath: /minio_data
+              claimName: minio-pvc
+
+    - name: severity-assessment
+      type: webservice
+      properties:
+        exposeType: NodePort
+        image: registry.gitlab.com/tta-nebulous/tta-modules/severity_assessment
+        imagePullSecrets:
+        - gitlab-secret
+        ports:
+        - name: sev-pred
+          expose: true
+          port: 9002
+          nodePort: 30012
+          protocol: TCP
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_ACCESS_KEY
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: minio-secrets
+                key: MINIO_SECRET_KEY
+        volumeMounts:
+          pvc:
+            - name: minio-storage
+              mountPath: /minio_data
+              claimName: minio-pvc, variables=[{key=spec.components.properties.objects.spec.resources.requests.cpu, path=/spec.components.properties.objects.spec.resources.requests.cpu, type=float, meaning=spec.components.properties.objects.spec.resources.requests.cpu, value={lower_bound=2, higher_bound=8}}, {key=spec.components.properties.objects.spec.resources.requests.storage, path=/spec.components.properties.objects.spec.resources.requests.storage, type=float, meaning=spec.components.properties.objects.spec.resources.requests.storage, value={lower_bound=10, higher_bound=16}}], resources=[{_id=clrhjsa6j000r0oynb8776rc1, metaType=arrayItem, scopedArrayName=doc.application.resources, uuid=9e6644b6-cb58-4fc5-b5cf-bf7a571d92fe, title=AWs my resource, platform=aws, enabled=true, _docId=clrhjsa6k00170oyn4hghaauk:en:published, _edit=true}], templates=[{_id=cltcwpi2l004t2e5z3kn4isg4, metaType=arrayItem, scopedArrayName=doc.application.templates, id=myid, type=int, minValue=2, maxValue=4, unit=ms, _docId=clrhjsa6k00170oyn4hghaauk:en:published, _edit=true}], parameters=[], metrics=[{_id=clrhjsa6j000s0oyncf9za40p, metaType=arrayItem, scopedArrayName=doc.application.metrics, type=composite, level=Global, components=[], name=cars_by_second, formula=number_of_cars_discovered / total_number_of_cars, isWindowInput=true, input={_id=clrhjsa6j000t0oyngrl8a83d, type=all, interval=0, unit=ms, metaType=object, scopedObjectName=doc.application.input}, isWindowOutput=true, output={_id=clrhjsa6j000u0oyn8enn9mbk, type=all, interval=0, unit=ms, metaType=object, scopedObjectName=doc.application.output}, sensor=, config=[], isWindowInputRaw=false, inputRaw={_id=cltcwla8n001b0lv64v0e49jz, type=null, interval=null, unit=null, metaType=object, scopedObjectName=doc.application.inputRaw}, isWindowOutputRaw=false, outputRaw={_id=clrhjsa6j000v0oyn0waq09do, type=null, interval=null, unit=null, metaType=object, scopedObjectName=doc.application.outputRaw}, _docId=clrhjsa6k00170oyn4hghaauk:en:published, _edit=true, arguments=[number_of_cars_discovered, total_number_of_cars]}, {_id=clrhjsa6j000w0oyn23sychyv, metaType=arrayItem, scopedArrayName=doc.application.metrics, type=raw, level=Global, components=[], name=latency, formula=, isWindowInput=false, input={_id=clrhjsa6j000x0oyn8xb78mv4, type=null, interval=null, unit=null, metaType=object, scopedObjectName=doc.application.input}, isWindowOutput=false, output={_id=clrhjsa6j000y0oyn0f94aiov, type=all, interval=0, unit=ms, metaType=object, scopedObjectName=doc.application.output}, sensor=latency_discovery, config=[{_id=clrhjsa6j000z0oyn0czm7k3e, metaType=arrayItem, scopedArrayName=doc.application.config, name=buffer, value=10, _docId=clrhjsa6k00170oyn4hghaauk:en:published, _edit=true}], isWindowInputRaw=false, inputRaw={_id=cltcwla8n001c0lv6gj4r6rwb, type=null, interval=null, unit=null, metaType=object, scopedObjectName=doc.application.inputRaw}, isWindowOutputRaw=true, outputRaw={_id=clrhjsa6j00100oynhyhs9rdf, type=all, interval=3, unit=ms, metaType=object, scopedObjectName=doc.application.outputRaw}, _docId=clrhjsa6k00170oyn4hghaauk:en:published, _edit=true}], sloViolations={nodeKey=d760437d-81cd-4675-9e40-e8d0ea4b9b4d, isComposite=true, condition=OR, not=false, children=[{nodeKey=b50b961b-6e9a-4f90-842c-e92fbab43f40, isComposite=false, metricName=latency, operator=>, value=10}, {nodeKey=7a91f324-7094-4536-a9b5-1eece0f19d66, isComposite=false, metricName=cars_by_second, operator=<=, value=50}]}, utilityFunctions=[{name=Utility Function 1, type=maximize, expression={formula=A * B + SIN(C), variables=[{name=A, value=cars_by_second}, {name=B, value=spec.components.properties.objects.spec.resources.requests.cpu}, {name=C, value=latency}]}}, {name=Utility Function B, type=constant, expression={formula=D /100, variables=[{name=D, value=Utility_Function_1}]}}], environmentVariables=[], status=deploying, _create=true, _delete=true}
