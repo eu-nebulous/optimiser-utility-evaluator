@@ -23,14 +23,13 @@ public class NodeCandidateDTO {
     private Integer gpu;
     @NonNull
     private Long ram; 
-    @NonNull
+    /*@NonNull
     private String location;
     @NonNull
     private Double latitude;
     @NonNull
-    private Double longitude;
-
-    private String id;
+    private Double longitude;*/
+    private String id; 
 }
     
 
