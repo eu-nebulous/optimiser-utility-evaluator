@@ -49,20 +49,20 @@ public class NodeCandidatesFetchingService {
          *  get node candidates
          * */
         Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
-        Map<String, Object> message = new HashMap();
+        /*Map<String, Object> message = new HashMap();
         try {
-            message = Map.of("metaData", Map.of("user", "admin"), "body", mapper.writeValueAsString(requirements));
-            log.info("Sending message to SAL: {}", message);
+            //message = Map.of("metaData", Map.of("user", "admin"), "body", mapper.writeValueAsString(requirements));
+            //log.info("Sending message to SAL: {}", message);
         } catch (JsonProcessingException e) {
             log.error("There was an error during converting message {}", e);
             e.printStackTrace();
-        }
+        }*/
 
-        //Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
+        Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
         Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
         log.info("Received a response");
         JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
-        log.info("Correctly return SAL response for component {}", componentId);
+        log.info("Correctly return SAL response for component {}, payload: {}", componentId, payload.asText());
         return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
     }
 

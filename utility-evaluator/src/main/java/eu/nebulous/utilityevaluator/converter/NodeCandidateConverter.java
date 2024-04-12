@@ -28,9 +28,9 @@ public class NodeCandidateConverter {
             nodeCandidate.getHardware().getCores(), 
             nodeCandidate.getHardware().getFpga(), 
             nodeCandidate.getHardware().getRam(),
-            nodeCandidate.getLocation().getGeoLocation().getCountry(),
-            nodeCandidate.getLocation().getGeoLocation().getLatitude(), 
-            nodeCandidate.getLocation().getGeoLocation().getLongitude(),
+            //nodeCandidate.getLocation().getGeoLocation().getCountry(),
+            //nodeCandidate.getLocation().getGeoLocation().getLatitude(), 
+            //nodeCandidate.getLocation().getGeoLocation().getLongitude(),
             nodeCandidate.getId()
         );
         return dto;
@@ -57,9 +57,9 @@ public class NodeCandidateConverter {
                 nodeCandidate.getGpu(),
                 nodeCandidate.getCpu(),
                 nodeCandidate.getRam(),
-                nodeCandidate.getLocation(),
-                nodeCandidate.getLatitude(),
-                nodeCandidate.getLongitude(),
+                //nodeCandidate.getLocation(),
+                //nodeCandidate.getLatitude(),
+                //nodeCandidate.getLongitude(),
                 nodeCandidate.getProvider(),
                 nodeCandidate.getType(),
                 nodeCandidate.getPrice());

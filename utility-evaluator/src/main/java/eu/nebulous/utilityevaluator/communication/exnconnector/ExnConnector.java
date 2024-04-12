@@ -33,8 +33,8 @@ public class ExnConnector {
 
     private static final String GENERAL_APP_CREATION_MESSAGE_TOPIC = "eu.nebulouscloud.ui.dsl.generic.>";
     private final DslGenericMessageHandler genericDSLHandler;
-    private static final String PERFOMANCE_INDICATORS_TOPIC = "eu.nebulouscloud.optimiser.controller.ampl.performanceindicators";
-    @Getter
+    private static final String PERFOMANCE_INDICATORS_TOPIC = "eu.nebulouscloud.optimiser.utilityevaluator.performanceindicators";
+    @Getter 
     private final Publisher performanceIndicatorPublisher;
     private static final String GET_NODE_CANDIDATES_TOPIC= "eu.nebulouscloud.exn.sal.nodecandidate.get";
     @Getter
@@ -48,7 +48,6 @@ public class ExnConnector {
         this.nodeCandidatesGetter = new SyncedPublisher("getNodeCandidates",  GET_NODE_CANDIDATES_TOPIC, true, true);
         this.genericDSLHandler = new DslGenericMessageHandler(nodeCandidatesGetter, performanceIndicatorPublisher);
         init();
-        
 
     }
     private void init() {

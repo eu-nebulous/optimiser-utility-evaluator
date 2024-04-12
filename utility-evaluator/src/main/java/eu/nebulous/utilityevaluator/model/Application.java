@@ -1,5 +1,6 @@
 package eu.nebulous.utilityevaluator.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import eu.nebulous.utilityevaluator.converter.VariableConverter;
+import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
 import eu.nebulous.utilityevaluator.model.message.GenericDSLMessage;
 import eu.nebulous.utilityevaluator.regression.SimpleCostRegression;
 import lombok.Getter;
@@ -47,11 +49,13 @@ private static final JsonPointer PROVIDERS_PATH = JsonPointer.compile("/resource
 
     public Application (JsonNode appMessage) {
         try {
-            this.kubevela = appMessage.at(KUBEVELA_PATH);
+            //this.kubevela = appMessage.at(KUBEVELA_PATH);
+            this.kubevela= KubevelaAnalyzer.parseKubevela(appMessage.at(KUBEVELA_PATH).textValue());
             this.applicationId = appMessage.at(UUID_PATH).textValue();
             this.applicationName = appMessage.at(NAME_PATH).textValue();
             JsonNode variables = appMessage.at(VARIABLES_PATH);
             this.variables = VariableConverter.convertAndGroupVariables(variables);
+            this.costPerformanceIndicators = new HashMap<>();
             log.info("Application message successfully parsed");
 
         } catch (Exception e) {
