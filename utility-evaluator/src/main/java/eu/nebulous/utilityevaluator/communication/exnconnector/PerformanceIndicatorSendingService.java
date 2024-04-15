@@ -54,7 +54,7 @@ public class PerformanceIndicatorSendingService {
 
             String componentNameValidAMPL=component.replaceAll("/", "_").substring(1);
 
-            String piName = "cost_pi"+componentNameValidAMPL;
+            String piName = "cost_pi_"+componentNameValidAMPL;
 
             ObjectNode pi = performanceIndicators.addObject();
             //ObjectNode pi = performanceIndicators.withObject(piName);

@@ -9,6 +9,7 @@ import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
 import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 import eu.nebulous.utilityevaluator.model.VariableDTO;
+import eu.nebulous.utilityevaluator.model.VariableType;
 import eu.nebulous.utilityevaluator.regression.SimpleCostRegression;
 import eu.nebulouscloud.exn.core.Publisher;
 import eu.nebulouscloud.exn.core.SyncedPublisher;
@@ -47,8 +48,15 @@ public class UtilityEvaluatorController {
             }
             List<NodeCandidateDTO> convertedNodeCandidates = NodeCandidateConverter.convertToDtoList(nodeCandidates);
             List<VariableDTO> componentVariables = application.getVariables().get(component);
-            SimpleCostRegression regression = new SimpleCostRegression(component, convertedNodeCandidates, componentVariables);
-            application.getCostPerformanceIndicators().put(component, regression);
+
+            if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
+                SimpleCostRegression regression = new SimpleCostRegression(component, convertedNodeCandidates, componentVariables);
+                application.getCostPerformanceIndicators().put(component, regression);
+            }
+            else {
+                log.warn("There are no variables for component {} = it is not possible to create any cost performance indicator!", component);
+            }
+
 
         };
         
