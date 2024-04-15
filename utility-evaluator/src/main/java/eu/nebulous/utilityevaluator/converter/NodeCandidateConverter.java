@@ -79,7 +79,7 @@ public class NodeCandidateConverter {
                         usedNodeParameters.add(node.getCpu());
                         break;
                     case RAM:
-                    usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
+                        usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
                         break;
                     default:
                         log.debug("Variable type {} is not usable in cost performance indicators", variable.getType());
