@@ -101,7 +101,7 @@ public class PerformanceIndicatorSendingService {
             joiner.add(Double.toString(num));
             counter++;
         }
-        joiner.add("\n");
+        joiner.add(";");
         return joiner.toString();
     }
 
