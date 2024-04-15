@@ -3,9 +3,6 @@ package eu.nebulous.utilityevaluator;
 import org.ow2.proactive.sal.model.NodeCandidate;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
-import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.communication.exnconnector.PerformanceIndicatorSendingService;
 import eu.nebulous.utilityevaluator.communication.sal.NodeCandidatesFetchingService;
 import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
@@ -15,10 +12,9 @@ import eu.nebulous.utilityevaluator.model.VariableDTO;
 import eu.nebulous.utilityevaluator.regression.SimpleCostRegression;
 import eu.nebulouscloud.exn.core.Publisher;
 import eu.nebulouscloud.exn.core.SyncedPublisher;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/* The main controlling component. It coordinates the work TODO*/
+/* The main controlling component. It coordinates the process of creating the initial performance indicators*/
 @Slf4j
 //@Component
 public class UtilityEvaluatorController {
@@ -39,14 +35,14 @@ public class UtilityEvaluatorController {
          *  for types variables that are there, create a list of arguments to the regression
          *  create regression object
          *  save it back in the application
-         *  send the parameters via ActiveMQ (maybe in the handler?)
+         *  send the parameters via ActiveMQ
          */
         for (String component : application.getVariables().keySet()){
 
             List<NodeCandidate> nodeCandidates = nodeCandidatesService.getNodeCandidatesViaMiddleware(application, component);
             log.info("Number of Node Candidates: {}", nodeCandidates.size());
             if (nodeCandidates.isEmpty()){
-                log.error("SAL returned empty list, it is not possible to create cost performance indicator");
+                log.error("SAL returned empty list, it is not possible to create cost performance indicator for component {}", component);
                 continue;
             }
             List<NodeCandidateDTO> convertedNodeCandidates = NodeCandidateConverter.convertToDtoList(nodeCandidates);

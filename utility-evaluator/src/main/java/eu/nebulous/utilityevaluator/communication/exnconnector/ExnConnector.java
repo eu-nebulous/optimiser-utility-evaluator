@@ -2,7 +2,7 @@ package eu.nebulous.utilityevaluator.communication.exnconnector;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Component;
 
 import eu.nebulouscloud.exn.Connector;
@@ -21,32 +21,24 @@ import org.slf4j.LoggerFactory;
 @Component
 public class ExnConnector {
 
-    @Value("${spring.activemq.broker-url}")
-    String BROKER_URL;
-    @Value("${spring.activemq.broker-port}")
-    Integer BROKER_PORT;
-    @Value("${spring.activemq.user}")
-    String BROKER_USERNAME;
-    @Value("${spring.activemq.password}")
-    String BROKER_PASSWORD;
- 
-
     private static final String GENERAL_APP_CREATION_MESSAGE_TOPIC = "eu.nebulouscloud.ui.dsl.generic.>";
-    private final DslGenericMessageHandler genericDSLHandler;
     private static final String PERFOMANCE_INDICATORS_TOPIC = "eu.nebulouscloud.optimiser.utilityevaluator.performanceindicators";
+    private static final String GET_NODE_CANDIDATES_TOPIC= "eu.nebulouscloud.exn.sal.nodecandidate.get";
+    
+    private ConnectionProperties properties;
+
+    private final DslGenericMessageHandler genericDSLHandler;
     @Getter 
     private final Publisher performanceIndicatorPublisher;
-    private static final String GET_NODE_CANDIDATES_TOPIC= "eu.nebulouscloud.exn.sal.nodecandidate.get";
     @Getter
     private final SyncedPublisher nodeCandidatesGetter;
-    
-    
 
-    public ExnConnector() {
+    public ExnConnector(ConnectionProperties properties) {
         super();
         this.performanceIndicatorPublisher = new Publisher("costPerformanceIndicators", PERFOMANCE_INDICATORS_TOPIC, true, true);
         this.nodeCandidatesGetter = new SyncedPublisher("getNodeCandidates",  GET_NODE_CANDIDATES_TOPIC, true, true);
         this.genericDSLHandler = new DslGenericMessageHandler(nodeCandidatesGetter, performanceIndicatorPublisher);
+        this.properties = properties;
         init();
 
     }
@@ -60,10 +52,10 @@ public class ExnConnector {
                     false,
                     false,
                     new StaticExnConfig(
-                            "localhost",
-                            5672,
-                            BROKER_USERNAME,
-                            BROKER_PASSWORD
+                            properties.getBrokerUrl(),
+                            properties.getBrokerPort(),
+                            properties.getBrokerUsername(),
+                            properties.getBrokerPassword()
                     )
             );
             c.start();

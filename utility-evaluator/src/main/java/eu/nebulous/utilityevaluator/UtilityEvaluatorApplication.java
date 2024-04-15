@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-/* This is the equvalent of the main class which starts the Utility Evaluator */
+/* This is the main class which starts the Utility Evaluator */
 @SpringBootApplication
 public class UtilityEvaluatorApplication {
 

@@ -1,20 +1,17 @@
 package eu.nebulous.utilityevaluator.communication.sal;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.ow2.proactive.sal.model.NodeCandidate;
 import org.ow2.proactive.sal.model.Requirement;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.communication.sal.error.ProactiveClientException;
 import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
 import eu.nebulous.utilityevaluator.model.Application;
@@ -36,18 +33,12 @@ public class NodeCandidatesFetchingService {
     private SyncedPublisher nodeCandidatesConnector;
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    //private final ProactiveConnector proactiveClientConnectorService;
-    /*public NodeCandidatesFetchingService(ProactiveClientProperties properties){
-        ProactiveConnector connector = new ProactiveConnector(properties);
-        this.proactiveClientConnectorService = connector;
-    }*/
+    
  //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl 
     
     public List<NodeCandidate> getNodeCandidatesViaMiddleware(Application app, String componentId){
-        /*generate requirements (based on kubevela), and providers,
-         *  call SAL via EXN Middleware
-         *  get node candidates
-         * */
+        //generate requirements (based on kubevela), and providers, call SAL via EXN Middleware  get node candidates
+
         Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
         /*Map<String, Object> message = new HashMap();
         try {
@@ -86,20 +77,10 @@ public class NodeCandidatesFetchingService {
         }
         return salResponse;
     }
-    //old method used for SAL
-    private List<NodeCandidate> getNodeCandidates(Map<String,String> cloudProviders){
-        List<Requirement> providerRequirements = convertProviderRequirements(cloudProviders);
-        return findNodeCandidates(providerRequirements);
-    }
-
-    //to be deleted
-    private List<Requirement> convertProviderRequirements(Map<String,String> cloudProviders){
-        //todo: filter based on the chosen cloud providers 
-        return List.of();
-    }
+    
 
     //old method used to connect to SAL directly
-    private List<NodeCandidate> findNodeCandidates(List<Requirement> requirements) {
+    /*private List<NodeCandidate> findNodeCandidates(List<Requirement> requirements) {
         List<NodeCandidate> nodeCandidates = new LinkedList<>();
         boolean isAnyAsyncNodeCandidatesProcessesInProgress = true;
         int requestNo = 0;
@@ -120,7 +101,7 @@ public class NodeCandidatesFetchingService {
             log.error("Error message body: {}", e2.getMessage());
         }
         return nodeCandidates; 
-    }
+    }*/
 
 
 
