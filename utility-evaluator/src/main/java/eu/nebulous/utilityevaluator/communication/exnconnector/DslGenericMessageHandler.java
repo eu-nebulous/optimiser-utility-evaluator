@@ -47,7 +47,7 @@ public class DslGenericMessageHandler extends Handler {
                 
             
         app = controller.createInitialCostPerformanceIndicators(app);
-        //todo: send back this cost performance indicators;
+
     }
 
         

@@ -65,7 +65,6 @@ public class NodeCandidateConverter {
                 nodeCandidate.getPrice());
     }
 
-    //TODO: this method should also encode other fields of NodeCandidates: GPU, providertype, location but we need to have them as variables.
     //only for variables that are used
     public static double[][] convertListToDoubleArray(List<NodeCandidateDTO> nodeList, List<VariableDTO> variables) {
         int size = nodeList.size();
@@ -83,7 +82,7 @@ public class NodeCandidateConverter {
                     usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
                         break;
                     default:
-                        log.info("Variable type {} is not usable in cost performance indicators", variable.getType());
+                        log.debug("Variable type {} is not usable in cost performance indicators", variable.getType());
                         break;
 
                     
