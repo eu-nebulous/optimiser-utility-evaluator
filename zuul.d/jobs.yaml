@@ -8,6 +8,7 @@
       - nebulous-optimiser-utility-evaluator-container-images
     description: Build the container images.
     files: &image_files
+      - ^zuul\.d/jobs\.yaml$
       - ^utility-evaluator/
     vars: &image_vars
       promote_container_image_job: nebulous-optimiser-utility-evaluator-upload-container-images
