@@ -10,6 +10,8 @@ import eu.nebulouscloud.exn.core.SyncedPublisher;
 import java.util.Map;
 
 import org.apache.qpid.protonj2.client.Message;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -42,12 +44,15 @@ public class DslGenericMessageHandler extends Handler {
         //Application appFromMessage = new Application(genericDSLMessage);
 
         JsonNode appMessage = mapper.valueToTree(body);
-        Application app = new Application(appMessage);    
+        Application app;
+	try {
+	    app = new Application(appMessage);
+	} catch (JsonProcessingException e) {
+            log.error("Could not read app creation message", e);
+            return;
+	}
         log.info("Application {}, with name {}, has variables: {}", app.getApplicationId(), app.getApplicationName(), app.getVariables().toString());
-                
-            
         app = controller.createInitialCostPerformanceIndicators(app);
-
     }
 
         

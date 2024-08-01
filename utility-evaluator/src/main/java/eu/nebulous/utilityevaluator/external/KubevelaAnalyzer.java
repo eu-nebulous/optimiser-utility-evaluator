@@ -1,6 +1,7 @@
 package eu.nebulous.utilityevaluator.external;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -192,6 +193,9 @@ public class KubevelaAnalyzer {
      * @throws JsonProcessingException if kubevela does not contain valid YAML.
      */
     public static JsonNode parseKubevela(String kubevela) throws JsonProcessingException {
+        if (kubevela == null) {
+            throw new JsonParseException("The provided string value was null");
+        }
         return yamlMapper.readTree(kubevela);
     }
 
