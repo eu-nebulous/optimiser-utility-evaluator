@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import eu.nebulous.utilityevaluator.converter.VariableConverter;
@@ -47,20 +48,15 @@ private static final JsonPointer NAME_PATH = JsonPointer.compile("/title");
  * in the app creation message. (Array of objects) */
 private static final JsonPointer PROVIDERS_PATH = JsonPointer.compile("/resources");
 
-    public Application (JsonNode appMessage) {
-        try {
-            //this.kubevela = appMessage.at(KUBEVELA_PATH);
-            this.kubevela= KubevelaAnalyzer.parseKubevela(appMessage.at(KUBEVELA_PATH).textValue());
-            this.applicationId = appMessage.at(UUID_PATH).textValue();
-            this.applicationName = appMessage.at(NAME_PATH).textValue();
-            JsonNode variables = appMessage.at(VARIABLES_PATH);
-            this.variables = VariableConverter.convertAndGroupVariables(variables);
-            this.costPerformanceIndicators = new HashMap<>();
-            log.info("Application message successfully parsed");
-
-        } catch (Exception e) {
-            log.error("Could not read app creation message", e);
-        }
+    public Application (JsonNode appMessage) throws JsonProcessingException {
+        //this.kubevela = appMessage.at(KUBEVELA_PATH);
+        this.kubevela= KubevelaAnalyzer.parseKubevela(appMessage.at(KUBEVELA_PATH).textValue());
+        this.applicationId = appMessage.at(UUID_PATH).textValue();
+        this.applicationName = appMessage.at(NAME_PATH).textValue();
+        JsonNode variables = appMessage.at(VARIABLES_PATH);
+        this.variables = VariableConverter.convertAndGroupVariables(variables);
+        this.costPerformanceIndicators = new HashMap<>();
+        log.info("Application message successfully parsed");
     }
 
     /*public Application(GenericDSLMessage message){
