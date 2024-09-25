@@ -49,12 +49,20 @@ public class NodeCandidatesFetchingService {
             e.printStackTrace();
         }*/
 
+        // rudi, 2024-09-25: Note that we send an empty reuqirements list, so
+        // we get all known node candidates, not only the ones required by
+        // component `componentId`.
         Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
         Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
         log.info("Received a response");
         JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
-        log.info("Correctly return SAL response for component {}, payload: {}", componentId, payload.asText());
-        return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
+        if (payload.isMissingNode()) {
+            log.error("Got invalid SAL response for component {}, continuing with empty node candidate list", componentId);
+            return List.of();
+        } else {
+            log.info("Correctly return SAL response for component {}, payload: {}", componentId, payload.asText());
+            return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
+        }
     }
 
     //copied from Optimizer Controller: https://opendev.org/nebulous/optimiser-controller/src/branch/master/optimiser-controller/src/main/java/eu/nebulouscloud/optimiser/controller/NebulousApp.java
