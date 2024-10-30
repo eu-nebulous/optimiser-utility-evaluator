@@ -5,8 +5,6 @@ import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulouscloud.exn.core.Context;
 import eu.nebulouscloud.exn.core.Handler;
 import eu.nebulouscloud.exn.core.Publisher;
-import eu.nebulouscloud.exn.core.SyncedPublisher;
-
 import java.util.Map;
 
 import org.apache.qpid.protonj2.client.Message;
@@ -29,9 +27,9 @@ public class DslGenericMessageHandler extends Handler {
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
-    public DslGenericMessageHandler(SyncedPublisher nodeCandidatesGetter, Publisher performanceIndicatorPublisher){
+    public DslGenericMessageHandler(Context exnContext, Publisher performanceIndicatorPublisher){
         super();
-        this.controller = new UtilityEvaluatorController(nodeCandidatesGetter, performanceIndicatorPublisher);
+        this.controller = new UtilityEvaluatorController(exnContext, performanceIndicatorPublisher);
     }
 
     @Override

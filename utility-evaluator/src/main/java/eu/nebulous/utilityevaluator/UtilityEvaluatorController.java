@@ -11,8 +11,8 @@ import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 import eu.nebulous.utilityevaluator.model.VariableDTO;
 import eu.nebulous.utilityevaluator.model.VariableType;
 import eu.nebulous.utilityevaluator.regression.SimpleCostRegression;
+import eu.nebulouscloud.exn.core.Context;
 import eu.nebulouscloud.exn.core.Publisher;
-import eu.nebulouscloud.exn.core.SyncedPublisher;
 import lombok.extern.slf4j.Slf4j;
 
 /* The main controlling component. It coordinates the process of creating the initial performance indicators*/
@@ -23,8 +23,8 @@ public class UtilityEvaluatorController {
     private NodeCandidatesFetchingService nodeCandidatesService;
     private PerformanceIndicatorSendingService performanceIndicatorSendingService;
 
-    public UtilityEvaluatorController(SyncedPublisher nodeCandidatesGetter, Publisher performanceIndicatorPublisher){
-        this.nodeCandidatesService = new NodeCandidatesFetchingService(nodeCandidatesGetter);
+    public UtilityEvaluatorController(Context exnContext, Publisher performanceIndicatorPublisher){
+        this.nodeCandidatesService = new NodeCandidatesFetchingService(exnContext);
         this.performanceIndicatorSendingService = new PerformanceIndicatorSendingService(performanceIndicatorPublisher);
     }
 

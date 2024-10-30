@@ -1,7 +1,6 @@
 package eu.nebulous.utilityevaluator.communication.sal;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +11,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.nebulous.utilityevaluator.communication.sal.error.ProactiveClientException;
+import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
 import eu.nebulous.utilityevaluator.model.Application;
+import eu.nebulouscloud.exn.core.Context;
 import eu.nebulouscloud.exn.core.SyncedPublisher;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,38 +30,38 @@ public class NodeCandidatesFetchingService {
     private static final int DELAY_BETWEEN_REQUESTS = 5000;
 
     @NonNull
-    private SyncedPublisher nodeCandidatesConnector;
+    private Context exnContext;
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    
- //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl 
-    
+    private long nRequest = 0;   // Used to generate unique SyncedPublisher key
+
+    //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl
+
     public List<NodeCandidate> getNodeCandidatesViaMiddleware(Application app, String componentId){
-        //generate requirements (based on kubevela), and providers, call SAL via EXN Middleware  get node candidates
+        //generate requirements (based on kubevela), and providers, call SAL
+        //via EXN Middleware get node candidates
 
         Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
-        /*Map<String, Object> message = new HashMap();
-        try {
-            //message = Map.of("metaData", Map.of("user", "admin"), "body", mapper.writeValueAsString(requirements));
-            //log.info("Sending message to SAL: {}", message);
-        } catch (JsonProcessingException e) {
-            log.error("There was an error during converting message {}", e);
-            e.printStackTrace();
-        }*/
-
-        // rudi, 2024-09-25: Note that we send an empty reuqirements list, so
+        // rudi, 2024-09-25: Note that we send an empty requirements list, so
         // we get all known node candidates, not only the ones required by
         // component `componentId`.
         Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
-        Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
-        log.info("Received a response");
-        JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
-        if (payload.isMissingNode()) {
-            log.error("Got invalid SAL response for component {}, continuing with empty node candidate list", componentId);
-            return List.of();
-        } else {
-            log.info("Correctly return SAL response for component {}, payload: {}", componentId, payload.asText());
-            return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
+        SyncedPublisher nodeCandidatesConnector = new SyncedPublisher(
+            "getNodeCandidates" + nRequest++,  ExnConnector.getNodeCandidatesTopic(), true, true);
+        try {
+            exnContext.registerPublisher(nodeCandidatesConnector);
+            Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
+            log.info("Received a response");
+            JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
+            if (payload.isMissingNode()) {
+                log.error("Got invalid SAL response for component {}, continuing with empty node candidate list", componentId);
+                return List.of();
+            } else {
+                log.info("Correctly return SAL response for component {}, payload: {}", componentId, payload.asText());
+                return Arrays.asList(mapper.convertValue(payload, NodeCandidate[].class));
+            }
+        } finally {
+            exnContext.unregisterPublisher(nodeCandidatesConnector.key());
         }
     }
 
