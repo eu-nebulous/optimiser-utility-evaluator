@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.ow2.proactive</groupId>
             <artifactId>sal-common</artifactId>
-            <version>13.1.0-SNAPSHOT</version>
+            <version>14.1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
