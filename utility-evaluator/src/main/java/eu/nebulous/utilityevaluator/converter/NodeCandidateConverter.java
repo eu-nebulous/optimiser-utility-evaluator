@@ -17,23 +17,39 @@ public class NodeCandidateConverter {
     public static List<NodeCandidateDTO> convertToDtoList(List<NodeCandidate> nodeCandidates) {
         return nodeCandidates.stream()
                 .map(NodeCandidateConverter::convertToDto)
+                .filter(dto -> dto != null) // Exclude null objects
                 .collect(Collectors.toList());
     }
  
     private static NodeCandidateDTO convertToDto(NodeCandidate nodeCandidate) {
-        NodeCandidateDTO dto = new NodeCandidateDTO(
-            nodeCandidate.getNodeCandidateType(), 
-            nodeCandidate.getPrice(), 
-            nodeCandidate.getCloud().getId(), 
-            nodeCandidate.getHardware().getCores(), 
-            nodeCandidate.getHardware().getFpga(), 
-            nodeCandidate.getHardware().getRam(),
-            //nodeCandidate.getLocation().getGeoLocation().getCountry(),
-            //nodeCandidate.getLocation().getGeoLocation().getLatitude(), 
-            //nodeCandidate.getLocation().getGeoLocation().getLongitude(),
-            nodeCandidate.getId()
-        );
-        return dto;
+        try {
+            if (nodeCandidate.getNodeCandidateType() == null ||
+                nodeCandidate.getCloud() == null ||
+                nodeCandidate.getCloud().getId() == null ||
+                nodeCandidate.getHardware() == null ||
+                nodeCandidate.getHardware().getCores() == null ||
+                nodeCandidate.getHardware().getFpga() == null ||
+                nodeCandidate.getHardware().getRam() == null ||
+                nodeCandidate.getId() == null) {
+                log.warn("Node candidate was skipped due to null parameter: {}", nodeCandidate.getId());
+                return null;
+            }
+
+            Double price = nodeCandidate.getPrice() != null ? nodeCandidate.getPrice() : 0.0;
+
+            return new NodeCandidateDTO(
+                nodeCandidate.getNodeCandidateType(), 
+                price,
+                nodeCandidate.getCloud().getId(), 
+                nodeCandidate.getHardware().getCores(), 
+                nodeCandidate.getHardware().getFpga(), 
+                nodeCandidate.getHardware().getRam(),
+                nodeCandidate.getId()
+            );
+        } catch (Exception e) {
+            log.error("Error while converting node candidate", e);
+            return null;
+        }
     }
 
 

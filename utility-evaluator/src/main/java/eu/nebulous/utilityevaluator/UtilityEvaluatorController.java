@@ -47,6 +47,10 @@ public class UtilityEvaluatorController {
                 continue;
             }
             List<NodeCandidateDTO> convertedNodeCandidates = NodeCandidateConverter.convertToDtoList(nodeCandidates);
+            if (convertedNodeCandidates.isEmpty()){
+                log.error("There are no Node Candidates for component {} available after the filtering, it is not possible to create any price estimator", component);
+                continue; 
+            }
             List<VariableDTO> componentVariables = application.getVariables().get(component);
 
             if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
