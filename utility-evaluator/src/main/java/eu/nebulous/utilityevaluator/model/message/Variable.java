@@ -9,7 +9,7 @@ public class Variable {
     private String key;
     private String path;
     private String type;
-    private String meaning;
+    private String meaning; 
     private Value value;
 
 

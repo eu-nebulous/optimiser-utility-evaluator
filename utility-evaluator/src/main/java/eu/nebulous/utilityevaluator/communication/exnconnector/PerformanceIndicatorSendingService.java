@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,7 +43,6 @@ public class PerformanceIndicatorSendingService {
     
     public void sendPerformanceIndicators(Application app){
         ObjectNode msg = jsonMapper.createObjectNode();
-        //ObjectNode performanceIndicators = msg.withObject("PerformanceIndicators");
         
         ArrayNode performanceIndicators = msg.withArray("PerformanceIndicators");
         
@@ -57,13 +55,10 @@ public class PerformanceIndicatorSendingService {
             String piName = "cost_pi_"+componentNameValidAMPL;
 
             ObjectNode pi = performanceIndicators.addObject();
-            //ObjectNode pi = performanceIndicators.withObject(piName);
-
 
             pi.put("name", piName);
             //array of variables
             List<String> variableNames = app.getVariables().get(component).stream().map(var -> var.getName()).collect(Collectors.toList());
-            //performanceIndicators.put("variables", variableNames.toString());
             ArrayNode arrayNode = jsonMapper.valueToTree(variableNames);
             pi.set("variables", arrayNode);
             /*try {

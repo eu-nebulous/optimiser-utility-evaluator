@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import eu.nebulous.utilityevaluator.converter.VariableConverter;
 import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
-import eu.nebulous.utilityevaluator.model.message.GenericDSLMessage;
 import eu.nebulous.utilityevaluator.regression.SimpleCostRegression;
 import lombok.Getter;
 import lombok.NonNull;
