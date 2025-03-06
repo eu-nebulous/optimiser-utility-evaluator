@@ -18,7 +18,13 @@
         <jackson.version>2.16.1</jackson.version>
     </properties>
     <dependencies>
-        <dependency>
+      <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-core -->
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-core</artifactId>
+        <version>1.15.1</version>
+      </dependency>
+      <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
@@ -47,29 +53,37 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api -->
         <dependency>
-            <groupId>org.ow2.proactive</groupId>
-            <artifactId>sal-common</artifactId>
-            <version>14.2.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>  
+          <groupId>javax.persistence</groupId>
+          <artifactId>javax.persistence-api</artifactId>
+          <version>2.2</version>
+        </dependency>
+        <dependency>
+          <groupId>org.ow2.proactive</groupId>
+          <artifactId>sal-common</artifactId>
+          <version>14.3.0-SNAPSHOT</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/lib/sal-common-14.3.0-SNAPSHOT.jar</systemPath>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-databind</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.commons</groupId>
+              <artifactId>commons-lang3</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -114,7 +128,7 @@
             <version>3.1.0</version>
         </dependency> -->
         <dependency>
-            <groupId>eu.nebulouscloud</groupId>
+            <groupId>io.github.eu-nebulous</groupId>
             <artifactId>exn-connector-java</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency> 
@@ -125,20 +139,16 @@
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
-        <repository>
-            <id>activeeon</id>
-            <name>repository.activeeon</name>
-            <url>http://repository.activeeon.com/content/groups/proactive/</url>
-            <releases>
-              <enabled>true</enabled>
-              <updatePolicy>always</updatePolicy>
-              <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-              <enabled>true</enabled>
-              <updatePolicy>always</updatePolicy>
-              <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
+        <repository>            <!-- new location for exn-connector-java  -->
+          <name>Central Portal Snapshots</name>
+          <id>central-portal-snapshots</id>
+          <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
         </repository>
         <repository>
             <id>ossrh</id>
