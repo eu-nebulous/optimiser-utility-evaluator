@@ -21,8 +21,15 @@ public class ExnConnector {
 
     private static final String GENERAL_APP_CREATION_MESSAGE_TOPIC = "eu.nebulouscloud.ui.dsl.generic.>";
     private static final String PERFOMANCE_INDICATORS_TOPIC = "eu.nebulouscloud.optimiser.utilityevaluator.performanceindicators";
+
+    /** Channel to get node candidates directly from SAL.  Bypasses CFSB.  */
     @Getter
     private static final String nodeCandidatesTopic= "eu.nebulouscloud.exn.sal.nodecandidate.get";
+
+    /** Channel to get node candidates from CFSB.  This topic accepts a list
+     * of lists of {@link org.ow2.proactive.sal.model.Requirement}s.  */
+    @Getter
+    private static final String nodeCandidatesMultipleTopic= "eu.nebulouscloud.cfsb.get_node_candidates_multi";
 
     @Getter
     private final Publisher performanceIndicatorPublisher;

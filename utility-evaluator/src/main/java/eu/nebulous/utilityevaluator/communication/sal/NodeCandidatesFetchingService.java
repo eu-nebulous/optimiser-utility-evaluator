@@ -1,15 +1,22 @@
 package eu.nebulous.utilityevaluator.communication.sal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.ow2.proactive.sal.model.AttributeRequirement;
 import org.ow2.proactive.sal.model.NodeCandidate;
+import org.ow2.proactive.sal.model.NodeType;
+import org.ow2.proactive.sal.model.NodeTypeRequirement;
 import org.ow2.proactive.sal.model.Requirement;
+import org.ow2.proactive.sal.model.RequirementOperator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
@@ -37,14 +44,79 @@ public class NodeCandidatesFetchingService {
 
     //https://gitlab.ow2.org/melodic/melodic-upperware/-/tree/morphemic-rc4.0/cp_generator/src/main/java/eu/paasage/upperware/profiler/generator/communication/impl
 
+    /**
+     * Ask the CFSB for a list of node candidates for the application.  Only
+     * ask for node candidates that are available in the clouds and regions
+     * that are specified in the dsl message.
+     */
+    public List<NodeCandidate> getNodeCandidatesViaBroker(Application app, String componentId){
+        // TODO: do we do this once per component, and if so, should we check
+        // whether the component is edge-only or cloud-only?
+        List<List<Requirement>> requirements = new ArrayList<>();
+        // organization-wide edge nodes
+        String orgWideName = "application_id|all-applications|";
+        requirements.add(List.of(
+            new NodeTypeRequirement(List.of(NodeType.EDGE), "", ""),
+            new AttributeRequirement("hardware", "name", RequirementOperator.INC, orgWideName)));
+        // per-app edge nodes
+        String appAssignedName = "application_id|" + app.getApplicationId() + "|";
+        requirements.add(List.of(
+            new NodeTypeRequirement(List.of(NodeType.EDGE), "", ""),
+            new AttributeRequirement("hardware", "name", RequirementOperator.INC, appAssignedName)));
+        // one requirement list per active cloud
+        app.getClouds().forEach((id, regions) -> {
+            List<Requirement> cloud_reqs = new ArrayList<>();
+            cloud_reqs.add(new NodeTypeRequirement(List.of(NodeType.IAAS), "", ""));
+            cloud_reqs.add(new AttributeRequirement("cloud", "id", RequirementOperator.EQ, id));
+            if (!regions.isEmpty()) {
+                cloud_reqs.add(new AttributeRequirement("location", "name", RequirementOperator.IN, String.join(" ", regions)));
+            }
+            requirements.add(cloud_reqs);
+        });
+
+        final Map<String, Object> message;
+        try {
+	    message = Map.of(
+		"metaData", Map.of("user", "admin"),
+		"body", mapper.writeValueAsString(requirements));
+	} catch (JsonProcessingException e) {
+            log.error("Could not convert requirements list to JSON string (this should never happen); failed to get node candidates",
+                e);
+            return List.of();
+	}
+
+        SyncedPublisher nodeCandidatesConnector = new SyncedPublisher(
+            "getNodeCandidatesMultiple" + nRequest++,  ExnConnector.getNodeCandidatesMultipleTopic(),
+            true, true);
+        try {
+            exnContext.registerPublisher(nodeCandidatesConnector);
+            Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(),
+                null, false);
+            log.info("Received a response");
+            // Note: we do not call extractPayloadFromExnResponse here, since this
+            // response does not come from the exn-middleware, so will not be
+            // packaged into a string.
+            ObjectNode jsonBody = mapper.convertValue(response, ObjectNode.class);
+            log.info("Correctly return CFSB response for component {}, payload: {}", componentId, jsonBody.asText());
+            List<JsonNode> result = Arrays.asList(mapper.convertValue(jsonBody.withArray("/body", JsonNode.OverwriteMode.ALL, true), JsonNode[].class));
+            // Strip the CFSB ranking attributes "score", "rank" so that the
+            // result entries convert cleanly into NodeCandidate instances
+            return result.stream()
+                .map(candidate ->
+                    mapper.convertValue(
+                        ((ObjectNode)candidate).deepCopy().remove(List.of("score", "rank")),
+                        NodeCandidate.class))
+                .collect(Collectors.toList());
+        } finally {
+            exnContext.unregisterPublisher(nodeCandidatesConnector.key());
+        }
+    }
+
+
     public List<NodeCandidate> getNodeCandidatesViaMiddleware(Application app, String componentId){
         //generate requirements (based on kubevela), and providers, call SAL
         //via EXN Middleware get node candidates
 
-        Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
-        // rudi, 2024-09-25: Note that we send an empty requirements list, so
-        // we get all known node candidates, not only the ones required by
-        // component `componentId`.
         Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
         SyncedPublisher nodeCandidatesConnector = new SyncedPublisher(
             "getNodeCandidates" + nRequest++,  ExnConnector.getNodeCandidatesTopic(), true, true);
