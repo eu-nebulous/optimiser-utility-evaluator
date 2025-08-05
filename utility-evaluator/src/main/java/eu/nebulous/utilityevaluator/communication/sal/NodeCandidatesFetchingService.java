@@ -4,15 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.ow2.proactive.sal.model.NodeCandidate;
-import org.ow2.proactive.sal.model.Requirement;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.nebulous.utilityevaluator.communication.exnconnector.ExnConnector;
 import eu.nebulous.utilityevaluator.external.KubevelaAnalyzer;
+import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
+import eu.nebulous.utilityevaluator.external.sal.Requirement;
 import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulouscloud.exn.core.Context;
 import eu.nebulouscloud.exn.core.SyncedPublisher;
@@ -41,7 +40,7 @@ public class NodeCandidatesFetchingService {
         //generate requirements (based on kubevela), and providers, call SAL
         //via EXN Middleware get node candidates
 
-        Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getRequirements(app.getKubevela());
+        Map<String, List<Requirement>> requirements = KubevelaAnalyzer.getBoundedRequirements(app.getKubevela());
         // rudi, 2024-09-25: Note that we send an empty requirements list, so
         // we get all known node candidates, not only the ones required by
         // component `componentId`.
