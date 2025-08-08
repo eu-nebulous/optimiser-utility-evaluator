@@ -40,7 +40,7 @@ public class UtilityEvaluatorController {
          */
         for (String component : application.getVariables().keySet()){
 
-            List<NodeCandidate> nodeCandidates = nodeCandidatesService.getNodeCandidatesViaMiddleware(application, component);
+            List<NodeCandidate> nodeCandidates = nodeCandidatesService.getNodeCandidatesViaBroker(application, component);
             log.info("Number of Node Candidates: {}", nodeCandidates.size());
             if (nodeCandidates.isEmpty()){
                 log.error("SAL returned empty list, it is not possible to create cost performance indicator for component {}", component);
