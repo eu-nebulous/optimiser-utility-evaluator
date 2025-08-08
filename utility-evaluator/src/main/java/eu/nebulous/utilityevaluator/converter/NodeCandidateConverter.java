@@ -18,13 +18,14 @@ public class NodeCandidateConverter {
     public static List<NodeCandidateDTO> convertToDtoList(List<NodeCandidate> nodeCandidates) {
         return nodeCandidates.stream()
                 .map(NodeCandidateConverter::convertToDto)
-                .filter(dto -> dto != null) // Exclude null objects
+                .filter(dto -> dto != null) // Remove unsuccessful conversions
                 .collect(Collectors.toList());
     }
- 
+
     private static NodeCandidateDTO convertToDto(NodeCandidate nodeCandidate) {
         try {
-            if (nodeCandidate.getNodeCandidateType() == null ||
+            if (nodeCandidate == null ||
+                nodeCandidate.getNodeCandidateType() == null ||
                 nodeCandidate.getCloud() == null ||
                 nodeCandidate.getCloud().getId() == null ||
                 nodeCandidate.getHardware() == null ||
@@ -39,14 +40,15 @@ public class NodeCandidateConverter {
             Double price = nodeCandidate.getPrice() != null ? nodeCandidate.getPrice() : 0.0;
 
             return new NodeCandidateDTO(
-                nodeCandidate.getNodeCandidateType(), 
+                nodeCandidate.getNodeCandidateType(),
                 price,
-                nodeCandidate.getCloud().getId(), 
-                nodeCandidate.getHardware().getCores(), 
-                nodeCandidate.getHardware().getFpga(), 
+                nodeCandidate.getCloud().getId(),
+                nodeCandidate.getHardware().getCores(),
+                nodeCandidate.getHardware().getFpga(),
                 nodeCandidate.getHardware().getRam(),
                 nodeCandidate.getId()
             );
+
         } catch (Exception e) {
             log.error("Error while converting node candidate", e);
             return null;
@@ -86,7 +88,7 @@ public class NodeCandidateConverter {
     public static double[][] convertListToDoubleArray(List<NodeCandidateDTO> nodeList, List<VariableDTO> variables) {
         int size = nodeList.size();
         double[][] dataArray = new double[size][];
-        
+
         for (int i = 0; i < size; i++) {
             NodeCandidateDTO node = nodeList.get(i);
             List<Integer> usedNodeParameters = new ArrayList<>();
@@ -102,7 +104,7 @@ public class NodeCandidateConverter {
                         log.debug("Variable type {} is not usable in cost performance indicators", variable.getType());
                         break;
 
-                    
+
                 }
             }
             double[] data = new double[usedNodeParameters.size()];
