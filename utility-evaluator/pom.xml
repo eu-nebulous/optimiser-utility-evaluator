@@ -103,7 +103,7 @@
             <version>3.1.0</version>
         </dependency> -->
         <dependency>
-            <groupId>io.github.eu-nebulous</groupId>
+            <groupId>eu.nebulouscloud</groupId>
             <artifactId>exn-connector-java</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency> 
@@ -113,17 +113,6 @@
         <repository>
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>            <!-- new location for exn-connector-java  -->
-          <name>Central Portal Snapshots</name>
-          <id>central-portal-snapshots</id>
-          <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
         </repository>
         <repository>
             <id>ossrh</id>
