@@ -1,11 +1,11 @@
 package eu.nebulous.utilityevaluator;
 
-import org.ow2.proactive.sal.model.NodeCandidate;
 import java.util.List;
 
 import eu.nebulous.utilityevaluator.communication.exnconnector.PerformanceIndicatorSendingService;
 import eu.nebulous.utilityevaluator.communication.sal.NodeCandidatesFetchingService;
 import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
+import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
 import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 import eu.nebulous.utilityevaluator.model.VariableDTO;

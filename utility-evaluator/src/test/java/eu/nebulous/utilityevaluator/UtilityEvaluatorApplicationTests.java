@@ -2,11 +2,11 @@ package eu.nebulous.utilityevaluator;
 
 
 import org.mockito.Mockito;
-import org.ow2.proactive.sal.model.Cloud;
-import org.ow2.proactive.sal.model.Hardware;
-import org.ow2.proactive.sal.model.NodeCandidate;
 
 import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
+import eu.nebulous.utilityevaluator.external.sal.Cloud;
+import eu.nebulous.utilityevaluator.external.sal.Hardware;
+import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 
 import org.junit.jupiter.api.Test;

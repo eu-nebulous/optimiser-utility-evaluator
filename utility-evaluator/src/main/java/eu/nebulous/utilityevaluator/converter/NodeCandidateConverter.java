@@ -3,7 +3,8 @@ package eu.nebulous.utilityevaluator.converter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.ow2.proactive.sal.model.NodeCandidate;
+
+import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 import eu.nebulous.utilityevaluator.model.VariableDTO;
 import lombok.extern.slf4j.Slf4j;
