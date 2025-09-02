@@ -53,7 +53,7 @@ public class UtilityEvaluatorController {
             }
             List<VariableDTO> componentVariables = application.getVariables().get(component);
 
-            if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
+            if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU)|| var.getType().equals(VariableType.GPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
                 SimpleCostRegression regression = new SimpleCostRegression(component, convertedNodeCandidates, componentVariables);
                 application.getCostPerformanceIndicators().put(component, regression);
             }

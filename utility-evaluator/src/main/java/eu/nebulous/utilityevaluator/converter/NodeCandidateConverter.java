@@ -97,6 +97,9 @@ public class NodeCandidateConverter {
                     case CPU:
                         usedNodeParameters.add(node.getCpu());
                         break;
+                    case GPU:
+                    	usedNodeParameters.add(node.getGpu());
+                        break;
                     case RAM:
                         usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
                         break;
