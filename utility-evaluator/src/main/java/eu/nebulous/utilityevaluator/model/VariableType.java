@@ -3,6 +3,7 @@ package eu.nebulous.utilityevaluator.model;
 
 public enum VariableType {
     CPU ("cpu"),
+    GPU ("gpu"),
     RAM ("memory"),
     LOCATION ("location"),
     STORAGE("storage"),

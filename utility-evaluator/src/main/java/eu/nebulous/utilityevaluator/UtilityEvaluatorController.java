@@ -1,11 +1,11 @@
 package eu.nebulous.utilityevaluator;
 
-import org.ow2.proactive.sal.model.NodeCandidate;
 import java.util.List;
 
 import eu.nebulous.utilityevaluator.communication.exnconnector.PerformanceIndicatorSendingService;
 import eu.nebulous.utilityevaluator.communication.sal.NodeCandidatesFetchingService;
 import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
+import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
 import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 import eu.nebulous.utilityevaluator.model.VariableDTO;
@@ -40,7 +40,7 @@ public class UtilityEvaluatorController {
          */
         for (String component : application.getVariables().keySet()){
 
-            List<NodeCandidate> nodeCandidates = nodeCandidatesService.getNodeCandidatesViaMiddleware(application, component);
+            List<NodeCandidate> nodeCandidates = nodeCandidatesService.getNodeCandidatesViaBroker(application, component);
             log.info("Number of Node Candidates: {}", nodeCandidates.size());
             if (nodeCandidates.isEmpty()){
                 log.error("SAL returned empty list, it is not possible to create cost performance indicator for component {}", component);
@@ -53,7 +53,7 @@ public class UtilityEvaluatorController {
             }
             List<VariableDTO> componentVariables = application.getVariables().get(component);
 
-            if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
+            if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU)|| var.getType().equals(VariableType.GPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
                 SimpleCostRegression regression = new SimpleCostRegression(component, convertedNodeCandidates, componentVariables);
                 application.getCostPerformanceIndicators().put(component, regression);
             }
