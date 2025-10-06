@@ -54,8 +54,13 @@ public class UtilityEvaluatorController {
             List<VariableDTO> componentVariables = application.getVariables().get(component);
 
             if (componentVariables.stream().filter(var -> var.getType().equals(VariableType.CPU)|| var.getType().equals(VariableType.GPU) || var.getType().equals(VariableType.RAM)).findAny().isPresent()){
+            	try {
                 SimpleCostRegression regression = new SimpleCostRegression(component, convertedNodeCandidates, componentVariables);
                 application.getCostPerformanceIndicators().put(component, regression);
+            	}catch(Exception ex)
+            	{
+            		log.error("Failed to get cost performance indicator for component {}",component,ex);
+            	}
             }
             else {
                 log.warn("There are no variables for component {} = it is not possible to create any cost performance indicator!", component);
