@@ -86,7 +86,7 @@ public class NodeCandidatesFetchingService {
 
         SyncedPublisher nodeCandidatesConnector = new SyncedPublisher(
             "getNodeCandidatesMultiple" + nRequest++,  ExnConnector.getNodeCandidatesMultipleTopic(),
-            true, true);
+            true, true,60*1000);
         try {
             exnContext.registerPublisher(nodeCandidatesConnector);
             Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(),
@@ -122,7 +122,7 @@ public class NodeCandidatesFetchingService {
         // component `componentId`.
         Map<String, Object> message = Map.of("metaData", Map.of("user", "admin"), "body", "[]");
         SyncedPublisher nodeCandidatesConnector = new SyncedPublisher(
-            "getNodeCandidates" + nRequest++,  ExnConnector.getNodeCandidatesTopic(), true, true);
+            "getNodeCandidates" + nRequest++,  ExnConnector.getNodeCandidatesTopic(), true, true,60*1000);
         try {
             exnContext.registerPublisher(nodeCandidatesConnector);
             Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
