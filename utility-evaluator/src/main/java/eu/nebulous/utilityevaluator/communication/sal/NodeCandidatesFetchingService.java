@@ -2,6 +2,7 @@ package eu.nebulous.utilityevaluator.communication.sal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,6 +92,12 @@ public class NodeCandidatesFetchingService {
             exnContext.registerPublisher(nodeCandidatesConnector);
             Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(),
                 null, false);
+            if(response==null)
+            {
+            	log.error("Failed to fetch node candidates");
+            	return Collections.emptyList();
+            }
+            		
             log.info("Received a response");
             // Note: we do not call extractPayloadFromExnResponse here, since this
             // response does not come from the exn-middleware, so will not be
@@ -126,6 +133,12 @@ public class NodeCandidatesFetchingService {
         try {
             exnContext.registerPublisher(nodeCandidatesConnector);
             Map<String, Object> response = nodeCandidatesConnector.sendSync(message, app.getApplicationId(), null, false);
+            if(response==null)
+            {
+            	log.error("Failed to fetch node candidates");
+            	return Collections.emptyList();
+            }
+            		
             log.info("Received a response");
             JsonNode payload = extractPayloadFromExnResponse(response, app.getApplicationId(), "getNodeCandidates");
             if (payload.isMissingNode()) {
