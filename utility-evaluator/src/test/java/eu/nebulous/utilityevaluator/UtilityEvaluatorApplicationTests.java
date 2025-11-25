@@ -3,13 +3,25 @@ package eu.nebulous.utilityevaluator;
 
 import org.mockito.Mockito;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.nebulous.utilityevaluator.converter.NodeCandidateConverter;
 import eu.nebulous.utilityevaluator.external.sal.Cloud;
 import eu.nebulous.utilityevaluator.external.sal.Hardware;
 import eu.nebulous.utilityevaluator.external.sal.NodeCandidate;
+import eu.nebulous.utilityevaluator.model.Application;
 import eu.nebulous.utilityevaluator.model.NodeCandidateDTO;
 
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +29,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class UtilityEvaluatorApplicationTests {
+
+    /** Get the contents of a test file. */
+    static String getResourceContent(String filename) throws URISyntaxException, IOException {
+        URL resourceUrl = UtilityEvaluatorApplicationTests.class.getClassLoader()
+            .getResource(filename);
+        return Files.readString(Paths.get(resourceUrl.toURI()),
+            StandardCharsets.UTF_8);
+    }
 
     @Test
     public void testConvertToDtoList_AllValidCandidates() {
@@ -115,6 +135,14 @@ class UtilityEvaluatorApplicationTests {
         assertTrue(dtos.isEmpty()); // No candidates should be converted
     }
 
-    
+    // https://github.com/eu-nebulous/optimiser-utility-evaluator/issues/26
+    @Test
+    public void testBug26() throws URISyntaxException, IOException {
+        String body = getResourceContent("bug-26.json");
+        ObjectMapper mapper = new ObjectMapper();
+	JsonNode appMessage = mapper.readTree(body);
+	Application app = new Application(appMessage);
+        assertNotNull(app);
+    }
 
 }

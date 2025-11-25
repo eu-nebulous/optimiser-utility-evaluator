@@ -7,7 +7,9 @@ public enum VariableType {
     RAM ("memory"),
     LOCATION ("location"),
     STORAGE("storage"),
-    REPLICAS ("replicas");
+    REPLICAS ("replicas"),
+    PRICE("price"),
+    UNKNOWN("");
 
     private final String value;
     
@@ -21,7 +23,7 @@ public enum VariableType {
                 return enumValue;
             }
         }
-        throw new IllegalArgumentException("No enum constant with value: " + value);
+        return VariableType.UNKNOWN;
     }
 
 }
