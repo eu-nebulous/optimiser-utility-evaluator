@@ -17,9 +17,10 @@ public class NodeCandidateConverter {
 
     public static List<NodeCandidateDTO> convertToDtoList(List<NodeCandidate> nodeCandidates) {
         return nodeCandidates.stream()
-                .map(NodeCandidateConverter::convertToDto)
-                .filter(dto -> dto != null) // Remove unsuccessful conversions
-                .collect(Collectors.toList());
+            .filter(candidate -> candidate != null) // Make test testConvertToDtoList_AllNullCandidates pass
+            .map(NodeCandidateConverter::convertToDto)
+            .filter(dto -> dto != null) // Remove unsuccessful conversions
+            .collect(Collectors.toList());
     }
 
     private static NodeCandidateDTO convertToDto(NodeCandidate nodeCandidate) {
@@ -102,6 +103,9 @@ public class NodeCandidateConverter {
                         break;
                     case RAM:
                         usedNodeParameters.add(Long.valueOf(node.getRam()).intValue());
+                        break;
+                    case UNKNOWN:
+                        log.warn("Variable {} has unknown type", variable.getName());
                         break;
                     default:
                         log.debug("Variable type {} is not usable in cost performance indicators", variable.getType());
